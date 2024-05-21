@@ -601,7 +601,7 @@ footer nav ul {
   color: #000000;
 }
 
-#ajout-box {
+#add-box {
   width: 420px;
   padding: 36px 0 30px 0;
   display: flex;
@@ -620,8 +620,8 @@ footer nav ul {
   position: relative;
 }
 
-#ajout-box input,
-#ajout-box select {
+#add-box input,
+#add-box select {
   background: #ffffff;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
   height: 51px;
@@ -635,7 +635,7 @@ footer nav ul {
   color: #444444;
 }
 
-#ajout-box .validate {
+#add-box .validate {
   border-top: 1px solid #b3b3b3;
   margin-top: 47px;
   display: flex;
