@@ -29,9 +29,11 @@ form.addEventListener("submit", function (event) {
     headers: {
       "Content-Type": "application/json",
     },
+    
     // Les données de l'utilisateur sont placées dans le JSON.
     body: JSON.stringify(user),
   })
+
     // nous obtenons la réponse
     .then((response) => {
       // Dans le cas où le statut est de 200, les données sont conservées dans le JSON.
@@ -47,6 +49,7 @@ form.addEventListener("submit", function (event) {
         error.innerText = "Utilisateur inconnu";
       }
     })
+
     // Il faut récupérer le token dans les données du JSON, le stocker, puis le rediriger.
     .then((data) => {
       sessionStorage.setItem("token", data.token);
