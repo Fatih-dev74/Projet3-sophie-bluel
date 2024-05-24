@@ -205,7 +205,7 @@ const adminPage = () => {
   // ajout du button pour modifier et ouverture du modale
   const modalLink = document.querySelector("#open-modal");
   // À chaque clic sur le button la fonction openModal s'exécute
-  modalLink.addEventListener("click", openModal); //jsp pk le open modal ne s'affiche pas en jaune!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  modalLink.addEventListener("click", openModal);
 };
 
 
