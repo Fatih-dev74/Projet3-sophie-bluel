@@ -1,7 +1,7 @@
 /* --- Sélection des éléments du DOM --- */
 const gallery = document.querySelector(".gallery");
 const navFilters = document.querySelector(".filters-nav");
-const asideModal = document.querySelector("#modal");
+const divModal = document.querySelector("#modal");
 const galerieModal = document.querySelector(".modal-box-galerie-photo");
 const modalGallery = document.querySelector(".modal-gallery");
 const ajoutModal = document.querySelector(".modal-box-ajout-photo");
@@ -44,52 +44,67 @@ function createOption(category) {
   selectForm.appendChild(option);
 }
 
-/* --- Récupération des données de l'API --- */
-async function getWorks(categoryId) {
-  try {
-    const response = await fetch("http://localhost:5678/api/works");
-    if (!response.ok) throw new Error("Erreur de récupération des données");
-    const projects = await response.json();
-    clearElement(gallery);
-    clearElement(modalGallery);
-    projects.forEach(project => {
-      if (!categoryId || categoryId == project.category.id) {
-        createProject(project);
-        createModalProject(project);
-      }
-    });
-  } catch (error) {
-    console.error(error);
-  }
+function createModalProject(project) {
+  const figure = createElement("figure", { "data-id": project.id });
+  const img = createElement("img", { src: project.imageUrl, alt: project.title, class: "modal-project-img" });
+  const trashIcon = createElement("img", { src: "assets/icons/trash-icon.svg", class: "trash-icon", "data-id": project.id });
+  trashIcon.addEventListener("click", () => {
+    if (confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) {
+      deleteWork(project.id);
+    }
+  });
+  const moveIcon = createElement("img", { src: "assets/icons/move-icon.svg", class: "move-icon" });
+  const figcaption = createElement("figcaption", {}, "éditer");
+  figure.append(img, trashIcon, moveIcon, figcaption);
+  modalGallery.appendChild(figure);
 }
 
-async function getCategories() {
+/* --- Récupération des données de l'API --- */
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Erreur de récupération des données");
+  return response.json();
+}
+
+async function init() {
   try {
-    const response = await fetch("http://localhost:5678/api/categories");
-    if (!response.ok) throw new Error("Erreur de récupération des données");
-    const categories = await response.json();
+    const [works, categories] = await Promise.all([
+      fetchData("http://localhost:5678/api/works"),
+      fetchData("http://localhost:5678/api/categories")
+    ]);
+
     categories.forEach(category => {
       createButton(category);
       createOption(category);
     });
+
     document.querySelectorAll(".filters-nav button").forEach(button => {
       button.addEventListener("click", () => {
         document.querySelectorAll(".filters-nav button").forEach(btn => btn.classList.remove("is-active"));
         button.classList.add("is-active");
-        getWorks(button.getAttribute("data-id"));
+        displayWorks(works, button.getAttribute("data-id"));
       });
     });
+
+    displayWorks(works);
+
   } catch (error) {
     console.error(error);
   }
 }
 
-/* --- Initialisation --- */
-async function init() {
-  await getWorks();
-  await getCategories();
+function displayWorks(works, categoryId) {
+  clearElement(gallery);
+  clearElement(modalGallery);
+  works.forEach(project => {
+    if (!categoryId || categoryId == project.category.id) {
+      createProject(project);
+      createModalProject(project);
+    }
+  });
 }
 
+/* --- Initialisation --- */
 init();
 
 /* --- Fonctions du mode admin --- */
@@ -107,7 +122,7 @@ function adminPage() {
       <button>publier les changements</button>
     </div>
   `);
- 
+
   document.querySelector("#portfolio h2").insertAdjacentHTML("afterend", `
     <a id="open-modal" href="#modal" class="edit-link"><i class="fa-regular fa-pen-to-square"></i>modifier</a>
   `);
@@ -124,34 +139,19 @@ function adminPage() {
 /* --- Modale et gestion des projets --- */
 async function deleteWork(workID) {
   try {
-    await fetch(`http://localhost:5678/api/works/1${workID}`, {
+    await fetch(`http://localhost:5678/api/works/${workID}`, {
       method: "DELETE",
       headers: { "Authorization": `Bearer ${token}` }
     });
-    getWorks();
+    init(); // Re-fetch data after deletion
   } catch (error) {
     console.error(error);
   }
 }
 
-function createModalProject(project) {
-  const figure = createElement("figure", { "data-id": project.id });
-  const img = createElement("img", { src: project.imageUrl, alt: project.title, class: "modal-project-img" });
-  const trashIcon = createElement("img", { src: "assets/icons/trash-icon.svg", class: "trash-icon", "data-id": project.id });
-  trashIcon.addEventListener("click", () => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) {
-      deleteWork(project.id);
-    }
-  });
-  const moveIcon = createElement("img", { src: "assets/icons/move-icon.svg", class: "move-icon" });
-  const figcaption = createElement("figcaption", {}, "éditer");
-  figure.append(img, trashIcon, moveIcon, figcaption);
-  modalGallery.appendChild(figure);
-}
-
 function openModal() {
-  asideModal.classList.remove("modal-non-active");
-  asideModal.setAttribute("aria-hidden", "false");
+  divModal.classList.remove("modal-non-active");
+  divModal.setAttribute("aria-hidden", "false");
   galerieModal.classList.remove("modal-non-active");
 
   document.querySelector("#add-photo-button1").addEventListener("click", () => {
@@ -180,11 +180,11 @@ function openModal() {
     }
   });
 
-  getWorks();
+  init(); // Re-fetch data to ensure the modal has the latest data
 }
 
 function closeModal() {
-  asideModal.classList.add("modal-non-active");
+  divModal.classList.add("modal-non-active");
   galerieModal.classList.add("modal-non-active");
   ajoutModal.classList.add("modal-non-active");
   document.querySelector("#ajout-box").reset();
@@ -216,7 +216,7 @@ async function addWork() {
       body: formData
     });
     if (response.ok) {
-      getWorks();
+      init(); // Re-fetch data after adding a new project
       closeModal();
     } else {
       console.error("Erreur d'ajout de projet");
@@ -276,4 +276,4 @@ function checkForm() {
 /* --- Activation du mode admin --- */
 if (token) {
   adminPage();
-}
+} 
