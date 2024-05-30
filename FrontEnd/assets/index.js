@@ -1,265 +1,279 @@
+/* --- Sélection des éléments du DOM --- */
 const gallery = document.querySelector(".gallery");
-
 const navFilters = document.querySelector(".filters-nav");
-
-// modal box gallery photo
+const asideModal = document.querySelector("#modal");
 const galerieModal = document.querySelector(".modal-box-galerie-photo");
-// gallery photo modal 1
-const ModalGallery = document.querySelector(".modal-gallery");
-// gallery photo modal 2
+const modalGallery = document.querySelector(".modal-gallery");
 const ajoutModal = document.querySelector(".modal-box-ajout-photo");
-// ajouter des photos
 const selectForm = document.querySelector("#category");
 
-// Utilisation pour concevoir un projet dans la galerie
-const createProject = (project) => {
-  const figureProject = document.createElement("figure");
-  figureProject.setAttribute("data-tag", project.category.name);
-  figureProject.setAttribute("data-id", project.id);
-
-  const imageProject = document.createElement("img");
-  imageProject.src = project.imageUrl;
-  imageProject.alt = project.title;
-
-  const figcaptionProject = document.createElement("figcaption");
-  figcaptionProject.innerText = project.title;
-
-  figureProject.appendChild(imageProject);
-  figureProject.appendChild(figcaptionProject);
-  gallery.appendChild(figureProject);
-};
-
-// Utilisation pour créer un bouton dans la nav des filtres
-const createFilterButton = (category) => {
-
-  const btn = document.createElement("button");
-        btn.setAttribute("data-tag", category.name);
-        btn.setAttribute("data-id", category.id);
-        btn.innerText = category.name;
-  navFilters.appendChild(btn);
-};
-
-const createOption = (category) => {
-  const optionForm = document.createElement("option");
-  optionForm.setAttribute("value", category.id);
-  optionForm.innerText = category.name;
-  selectForm.appendChild(optionForm);
-};
-
-// Fonction qui supprime tous les éléments enfant d'un élément parent dans le DOM.
-const dropElement = (parent_element) => {
-// Il faut au moins un enfant
-  while(parent_element.childNodes.length > 0) {
-// Le dernier élément est supprimé. Le précédent devient le dernier, jusqu'à ce qu'il n'y ait plus aucun enfant.
-    parent_element.removeChild(parent_element.lastChild);
+/* --- Fonctions utilitaires --- */
+function createElement(tag, attributes, textContent) {
+  const element = document.createElement(tag);
+  for (let key in attributes) {
+    element.setAttribute(key, attributes[key]);
   }
-};
+  if (textContent) {
+    element.textContent = textContent;
+  }
+  return element;
+}
 
+function clearElement(element) {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+}
 
-// La fonction "Fetch" pour récupère les works de l'API
-const getWorks = async (categoryId) => {
-// On met le lien de l'API Works 
-  await fetch("http://localhost:5678/api/works")
-// Une fois que le fetch est activé, les données sont récupérées en Java. Dans le cas contraire, une erreur est affichée.
-  .then((response) => {
-    if (response.ok) {
-      return response.json();
-    } else {
-      console.log("Erreur dans la récupération des données de l'API");
-    }
-  })
+/* --- Fonctions de création --- */
+function createProject(project) {
+  const figure = createElement("figure", { "data-tag": project.category.name, "data-id": project.id });
+  const img = createElement("img", { src: project.imageUrl, alt: project.title });
+  const figcaption = createElement("figcaption", {}, project.title);
+  figure.append(img, figcaption);
+  gallery.appendChild(figure);
+}
 
-  .then((project) => {
-    // On efface tous les travaux pour avoir une page blanche
-    dropElement(gallery); // Sur la galerie
-    dropElement(modalGallery); // Dans la modale
+function createButton(category) {
+  const button = createElement("button", { "data-tag": category.name, "data-id": category.id }, category.name);
+  navFilters.appendChild(button);
+}
 
-    project.forEach((project) => {
-      //si categoryId est vide, on affiche tout
-      //si categoryId est renseigné, On filtre les works sur la catégorie,
-      if (categoryId == project.category.id || categoryId == null) {
-        createProject(project); // Créé la galerie section portfolio
-        createModalProject(project); // Créé la galerie dans la modale
+function createOption(category) {
+  const option = createElement("option", { value: category.id }, category.name);
+  selectForm.appendChild(option);
+}
+
+/* --- Récupération des données de l'API --- */
+async function getWorks(categoryId) {
+  try {
+    const response = await fetch("http://localhost:5678/api/works");
+    if (!response.ok) throw new Error("Erreur de récupération des données");
+    const projects = await response.json();
+    clearElement(gallery);
+    clearElement(modalGallery);
+    projects.forEach(project => {
+      if (!categoryId || categoryId == project.category.id) {
+        createProject(project);
+        createModalProject(project);
       }
     });
-  })
-  .catch((error) => {
-    console.log(error);
-  });
-};
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-
-// La fonction "Fetch" pour récupère les categories de filtres de l'API
-const getCategories = async(category) => {
-  // On met le lien de l'API Works
-  await fetch("http://localhost:5678/api/categories")
-  // Une fois que le fetch est activé, les données sont récupérées en Java. Dans le cas contraire, une erreur est affichée.
-  .then((response) => {
-    if(response.ok) {
-      return response.json();
-    } else {
-      console.log("Erreur dans la récupération des donnés de l'API")
-    }
-  })
-
-  .then((category) => {
-    category.forEach((category) =>{
+async function getCategories() {
+  try {
+    const response = await fetch("http://localhost:5678/api/categories");
+    if (!response.ok) throw new Error("Erreur de récupération des données");
+    const categories = await response.json();
+    categories.forEach(category => {
       createButton(category);
       createOption(category);
     });
-  })
-
-  .then((filter) => {
-    // on récupère les boutons et les filtres
-    const buttons = document.querySelectorAll(".filters-nav button")
-    buttons.forEach((button) => {
-      // a chaque fois qu'on clic sur les buttons
-      button.addEventListener("click", function() {
-
-        // obtenir l'identifiant de la catégorie
-        let categorieId = button.getAttribute("data-id");
-        console.log(categorieId);
-
-        // La classe 'is-active' est supprimée pour chaque bouton.
-        buttons.forEach((button) => button.classList.remove("is-active"));
-
-        // Ensuite, nous ajoutons la classe active au bouton cliqué.
-        this.classList.add("is-active");
-
-        // Les workflows de l'API sont récupérés en fonction des catégories.
-        getWorks(categorieId);
+    document.querySelectorAll(".filters-nav button").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".filters-nav button").forEach(btn => btn.classList.remove("is-active"));
+        button.classList.add("is-active");
+        getWorks(button.getAttribute("data-id"));
       });
     });
-  })
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-  .catch((error) => {
-    console.log(error);
-  });
-};
-
-
-// Fonction permettant d'afficher le getWorks sans paramètre (tout affiché).
-const main = async () => {
+/* --- Initialisation --- */
+async function init() {
   await getWorks();
   await getCategories();
-};
+}
 
-// une fois la page ouverte on execute la fonction getWorks et getCategories
-main();
+init();
 
-
-// Fonctions du mode administrateur
-
-// Get the body 
-const body = document.querySelector("body");
-//obtenir  l'image principale de Sophie
-const imgSophie = document.querySelector("#introduction img");
-//obtenir le titre de la galerie
-const galleryTitle = document.querySelector("#portfolio h2")
-// il faut récupérer le token
+/* --- Fonctions du mode admin --- */
 const token = window.sessionStorage.getItem("token");
 
-
-// Fonction permettant de se déconnecter de l'administrateur
-const logOut = () => {
+function logOut() {
   sessionStorage.removeItem("token");
   window.location.href = "./index.html";
-};
+}
 
+function adminPage() {
+  document.body.insertAdjacentHTML("afterbegin", `
+    <div class="edit-bar">
+      <span class="edit"><i class="fa-regular fa-pen-to-square"></i> Mode édition</span>
+      <button>publier les changements</button>
+    </div>
+  `);
+ 
+  document.querySelector("#portfolio h2").insertAdjacentHTML("afterend", `
+    <a id="open-modal" href="#modal" class="edit-link"><i class="fa-regular fa-pen-to-square"></i>modifier</a>
+  `);
+  document.querySelector(".filters-nav").style.display = "none";
+  document.querySelector(".portfolio-title").style.paddingBottom = "76px";
 
-// Fonction permettant de créer les éléments du mode administrateur
-const adminPage = () => {
-  body.insertAdjacentHTML(
-    "afterbegin",
-    `<div class="edit-bar">
-        <span class="edit"><i class="fa-regular fa-pen-to-square"></i> Mode édition</span>
-        <button>publier les changements</button>
-    </div>`
-  );
-  // button pour modifier l'images
-  imgSophie.insertAdjacentHTML(
-    "afterend",
-    `<a href="#" class="edit-link">
-      <i class="fa-regular fa-pen-to-square"></i>modifier
-    </a>`
-  );
-  // button pour modifier les titres de la galerie
-  galleryTitle.insertAdjacentHTML(
-    "afterend",
-    `<a id="open-modal" href="#modal" class="edit-link">
-      <i class="fa-regular fa-pen-to-square"></i>modifier
-    </a>`
-  );
-
-  //pour enlever les filtres
-  document.querySelector(".filters-nav").computedStyleMap.display = "none";
-  document.querySelector(".portfolio-title").computedStyleMap.paddingBottom = "76px";
-
-  // ajout du button login et logout
   const logButton = document.querySelector("#logButton");
-  // on met le button login a la place de logout
   logButton.innerHTML = `<a href="./index.html">logout</a>`;
-  // À chaque clic sur le button la fonction logout s'exécute
   logButton.addEventListener("click", logOut);
 
-  // ajout du button pour modifier et ouverture du modale
-  const modalLink = document.querySelector("#open-modal");
-  // À chaque clic sur le button la fonction openModal s'exécute
-  modalLink.addEventListener("click", openModal);
-};
+  document.querySelector("#open-modal").addEventListener("click", openModal);
+}
 
+/* --- Modale et gestion des projets --- */
+async function deleteWork(workID) {
+  try {
+    await fetch(`http://localhost:5678/api/works/1${workID}`, {
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    getWorks();
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-// Fonction pour supprimer un projet dans le modale
-const deleteWork = async(workID) => {
-  // On importe le lien de l'API Works
-  await fetch("http://localhost:5678/api/works/1"+workID, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token,
-    },
-  }).catch((error) => {
-    console.log(error);
+function createModalProject(project) {
+  const figure = createElement("figure", { "data-id": project.id });
+  const img = createElement("img", { src: project.imageUrl, alt: project.title, class: "modal-project-img" });
+  const trashIcon = createElement("img", { src: "assets/icons/trash-icon.svg", class: "trash-icon", "data-id": project.id });
+  trashIcon.addEventListener("click", () => {
+    if (confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) {
+      deleteWork(project.id);
+    }
+  });
+  const moveIcon = createElement("img", { src: "assets/icons/move-icon.svg", class: "move-icon" });
+  const figcaption = createElement("figcaption", {}, "éditer");
+  figure.append(img, trashIcon, moveIcon, figcaption);
+  modalGallery.appendChild(figure);
+}
+
+function openModal() {
+  asideModal.classList.remove("modal-non-active");
+  asideModal.setAttribute("aria-hidden", "false");
+  galerieModal.classList.remove("modal-non-active");
+
+  document.querySelector("#add-photo-button1").addEventListener("click", () => {
+    galerieModal.classList.add("modal-non-active");
+    ajoutModal.classList.remove("modal-non-active");
+    document.querySelector(".close-icon-2").addEventListener("click", closeModal);
+    document.querySelector(".back-icon").addEventListener("click", () => {
+      galerieModal.classList.remove("modal-non-active");
+      ajoutModal.classList.add("modal-non-active");
+    });
   });
 
-  //fonction pour afficher des produits ; getWorks()
-  getWorks();
-};
-
-
-// Utilisation de la modale pour créer un projet
-const createModalProject = (project) => {
-  const figureModalProject = document.createElement("figure");
-  figureModalProject.setAttribute("data-id", project.id);
-
-  const imageModalProject = document.createElement("img");
-  imageModalProject.src = project.imageUrl;
-  imageModalProject.alt = project.title;
-  imageModalProject.classList.add("modal-project-img");
-
-  const trashIcon = document.createElement("img");
-  trashIcon.src = "assets/icons/trash-icon.svg";
-  trashIcon.classList.add("trash-icon");
-  trashIcon.setAttribute("data-id", project.id);
-  let trashIconID = trashIcon.getAttribute("data-id");
-
-  trashIcon.addEventListener("click", function (event) {
-    event.preventDefault();
-    if (confirm("Êtes-vous sûr de vouloir supprimer ce projet ?") == true){
-      deleteWork(trashIconID);
+  document.querySelector("#valider-button").addEventListener("click", validateForm);
+  document.querySelector("#delete-galery").addEventListener("click", () => {
+    if (confirm("Êtes-vous sûr de vouloir supprimer la galerie?")) {
+      modalGallery.querySelectorAll("figure").forEach(figure => {
+        deleteWork(figure.getAttribute("data-id"));
+      });
     }
   });
 
-  const moveIcon = document.createElement("img");
-  moveIcon.src = "assets/icons/move-icon.svg";
-  moveIcon.classList.add("move-icon");
+  document.querySelector(".close-icon").addEventListener("click", closeModal);
+  document.getElementById("modal").addEventListener("click", event => {
+    if (event.target === document.getElementById("modal")) {
+      closeModal();
+    }
+  });
 
-  const figcaptionModalProject = document.createElement("figcaption");
-  figcaptionModalProject.innerText = "éditer";
+  getWorks();
+}
 
-  figureModalProject.appendChild(imageModalProject);
-  figureModalProject.appendChild(trashIcon);
-  figureModalProject.appendChild(moveIcon);
-  figureModalProject.appendChild(figcaptionModalProject);
-  ModalGallery.appendChild(figureModalProject);
-};
+function closeModal() {
+  asideModal.classList.add("modal-non-active");
+  galerieModal.classList.add("modal-non-active");
+  ajoutModal.classList.add("modal-non-active");
+  document.querySelector("#ajout-box").reset();
+  const previewImage = document.querySelector("#preview-image");
+  if (previewImage) {
+    previewImage.remove();
+  }
+  document.querySelector(".photo-upload-button").style.display = "";
+  document.querySelector(".picture-icon").style.display = "";
+  document.querySelector(".type-files").style.display = "";
+  document.querySelector("#valider-button").style.backgroundColor = "#a7a7a7";
+}
+
+/* --- Ajout de projet --- */
+document.querySelector("#image").addEventListener("change", showFile);
+document.querySelector("#title").addEventListener("input", checkForm);
+document.querySelector("#category").addEventListener("input", checkForm);
+document.querySelector("#image").addEventListener("change", checkForm);
+
+async function addWork() {
+  const formData = new FormData();
+  formData.append("image", document.getElementById("image").files[0]);
+  formData.append("title", document.getElementById("title").value);
+  formData.append("category", document.getElementById("category").value);
+  try {
+    const response = await fetch("http://localhost:5678/api/works", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}` },
+      body: formData
+    });
+    if (response.ok) {
+      getWorks();
+      closeModal();
+    } else {
+      console.error("Erreur d'ajout de projet");
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function validateForm(e) {
+  e.preventDefault();
+  const errMessImg = document.querySelector("#error-img");
+  const errMessTitle = document.querySelector("#error-title");
+  const errMessCat = document.querySelector("#error-category");
+
+  if (document.getElementById("title").value && document.getElementById("category").value && document.getElementById("image").files.length > 0) {
+    addWork();
+    errMessImg.style.display = "none";
+    errMessTitle.style.display = "none";
+    errMessCat.style.display = "none";
+  } else {
+    if (document.getElementById("image").files.length === 0) errMessImg.style.display = "block";
+    if (!document.getElementById("title").value) errMessTitle.style.display = "block";
+    if (!document.getElementById("category").value) errMessCat.style.display = "block";
+  }
+}
+
+/* --- Prévisualisation de l'image --- */
+function showFile(event) {
+  const input = event.target;
+  const previewImage = document.querySelector("#preview-image");
+  if (previewImage) {
+    previewImage.remove();
+  }
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const img = createElement("img", { src: e.target.result, id: "preview-image" });
+      document.querySelector("#ajout-box").appendChild(img);
+      document.querySelector(".photo-upload-button").style.display = "none";
+      document.querySelector(".picture-icon").style.display = "none";
+      document.querySelector(".type-files").style.display = "none";
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+/* --- Vérification du formulaire --- */
+function checkForm() {
+  if (document.getElementById("title").value && document.getElementById("category").value && document.getElementById("image").files.length > 0) {
+    document.querySelector("#valider-button").style.backgroundColor = "#1D6154";
+  } else {
+    document.querySelector("#valider-button").style.backgroundColor = "#a7a7a7";
+  }
+}
+
+/* --- Activation du mode admin --- */
+if (token) {
+  adminPage();
+}
