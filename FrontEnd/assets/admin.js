@@ -3,11 +3,10 @@ let tokenId = window.localStorage.getItem('tokenId');
 console.log(tokenId);
 
 const editionBar = document.querySelector('.edition_bar');
-const profilePicture = document.querySelector('#introduction figure');
 const sectionPortfolio = document.querySelector('#portfolio h2');
 const categoryFilter = document.querySelector('.filters');
 const adminLogin = document.querySelector('.login')
-const sectionArticle = document.querySelector('.presentation');
+
 
 // Si la valeur du token est bonne
 if (tokenId) {
@@ -24,23 +23,14 @@ function genererAdminElement () {
     editionBar.appendChild(editionMod);
 
     // Ajout des icônes modifier
-    const profilePictureEdition = document.createElement('figcaption');
-    profilePicture.appendChild(profilePictureEdition);
-
      const portfolioEdition = document.createElement('button');
      portfolioEdition.innerHTML = `<i class="fa-regular fa-pen-to-square"></i> modifier`
      portfolioEdition.className = 'btn_modification';
      sectionPortfolio.appendChild(portfolioEdition);
 
-     const articleEdition = document.createElement('button');
-     articleEdition.innerHTML = `<i class="fa-regular fa-pen-to-square"></i> modifier`;
-     sectionArticle.appendChild(articleEdition);
 
-     // Disparition des filtres
      categoryFilter.style.display = 'none';
-
-     // Remplacement de login par logout
-    adminLogin.innerHTML = 'logout'
+     adminLogin.innerHTML = 'logout'
 }
 
 // Deconnexion via logout
