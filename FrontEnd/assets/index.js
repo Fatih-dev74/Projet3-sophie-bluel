@@ -17,7 +17,6 @@ const addCategoryInput = document.getElementById('category_select');
 const deleteAllGallery = document.querySelector('.delete_gallery');
 let modal = null
 
-// Au chargement de la page
 addEventListener("DOMContentLoaded", async (event) => {
     await fetchCategories()
     await fetchWorks();
