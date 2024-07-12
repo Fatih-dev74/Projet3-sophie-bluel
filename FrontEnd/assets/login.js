@@ -1,40 +1,47 @@
-const loginForm = document.querySelector('.login');
+//get elements from DOM
+const login_url = 'http://localhost:5678/api/users/login';
 
-// Envoie sur l'API
-async function fetchLogin() {
-    const mail = document.querySelector('#mail').value;
-    const password = document.querySelector('#password').value;
-    if (mail === 'sophie.bluel@test.tld' && password === 'S0phie') {
-        await fetch('http://localhost:5678/api/users/login', {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            email: mail,
-            password: password,
-        }),
-    })
-        .then((response) => {
-            console.log(response);
-            if (response.status === '404') {
-                return false;
-            }
-            return response.json()
-        })
-        .then ((data) => {
-            window.localStorage.setItem('tokenId', data.token); // Stockage du token
-            window.location.href = './index.html';
-        })
-    } else {
-        const error = document.querySelector('.error');
-        error.style.display = 'flex';
-    }
+const form = document.getElementById("form");
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const error = document.querySelector(".error-message");
+error.innerText = "";
+
+function welcomeHome() {
+  document.location.href = "./index.html";
 }
 
-// Bouton de validation du login
-loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    await fetchLogin();
+form.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  let user = {
+    email: email.value,
+    password: password.value,
+  };
+
+  fetch(login_url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(user),
+  })
+    .then((Response) => {
+      if (Response.ok) {
+        return Response.json();
+      } else if (Response.status === 401) {
+        console.log("unauthorized");
+        error.innerText = "Erreur de Mot de passe et/ou identifiant";
+      } else if (Response.status === 404) {
+        console.log("user not found");
+        error.innerText = "Utilisateur inconnu";
+      }
+    })
+    .then((data) => {
+      sessionStorage.setItem("token", data.token);
+      welcomeHome();
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 });
