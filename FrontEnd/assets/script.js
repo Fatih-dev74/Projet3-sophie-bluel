@@ -1,400 +1,362 @@
-//get class from Dom 
-const base_url = 'http://localhost:5678/api/'
-const works_url = 'http://localhost:5678/api/works';
-const categories_url = 'http://localhost:5678/api/categories';
-const delete_url = 'http://localhost:5678/api/works/1'
-//get Filters nav
-const navFilters = document.querySelector(".filters-nav");
-const gallery = document.querySelector(".gallery");
-const asideModal = document.querySelector("#modal");
-const galleryModal = document.querySelector(".modal-box-gallery");
-const modalGallery = document.querySelector(".modal-gallery");
-const addModal = document.querySelector(".modal-add-picture");
-const selectForm = document.querySelector("#category");
+// Adresse de l'API
+const apiUrl = "http://localhost:5678/api/";
 
-//function create a button
-const createButton = (category) => {
+// Récupère les travaux depuis l'API
+async function getWorks() {
+  const reponse = await fetch(`${apiUrl}works`);
+  let works = await reponse.json();
+  return works;
+}
 
-  const buttonFilters = document.createElement("button");
-  buttonFilters.setAttribute("data-tag", category.name);
-  buttonFilters.setAttribute("data-id", category.id);
-  buttonFilters.innerText = category.name;
-  navFilters.appendChild(buttonFilters);
-};
+let works = await getWorks();
+const divGallery = document.querySelector(".gallery");
+const divGalleryModal = document.querySelector(".gallery-modal");
 
-const createProject = (project) => {
-  const figureProject = document.createElement("figure");
-  figureProject.setAttribute("data-tag", project.category.name);
-  figureProject.setAttribute("data-id", project.id);
-
-  const imageProject = document.createElement("img");
-  imageProject.src = project.imageUrl;
-  imageProject.alt = project.title;
-
-  const figcaptionProject = document.createElement("figcaption");
-  figcaptionProject.innerText = project.title;
-  figureProject.appendChild(imageProject);
-  figureProject.appendChild(figcaptionProject);
-  gallery.appendChild(figureProject);
-};
-
-const createOption = (category) => {
-  const optionForm = document.createElement("option");
-  optionForm.setAttribute("value", category.id);
-  optionForm.innerText = category.name;
-  selectForm.appendChild(optionForm);
-};
-
-const removeElement = (parent_element) => {
-
-  while (parent_element.childNodes.length > 0) {
-
-    parent_element.removeChild(parent_element.lastChild);
-
+// Afficher tous les travaux pour la page principale
+function genererWorks(works) {
+  divGallery.innerHTML = "";
+  // Boucle pour afficher tous les travaux
+  for (let i = 0; i < works.length; i++) {
+    const work = works[i]; // Un travail
+    // Créer une image et une légende de figure
+    const imageElement = document.createElement("img");
+    imageElement.src = work.imageUrl;
+    imageElement.alt = work.title;
+    const figCaptionElement = document.createElement("figcaption");
+    figCaptionElement.innerText = work.title;
+    // Créer une figure pour joindre l'image et la légende
+    const figureElement = document.createElement("figure");
+    figureElement.id = `${work.id}-gall`;
+    figureElement.appendChild(imageElement);
+    figureElement.appendChild(figCaptionElement);
+    // Attacher la figure au DOM
+    const divGallery = document.querySelector(".gallery");
+    divGallery.appendChild(figureElement);
   }
-};
+}
 
-const getWorks = async (categoryId) => {
-  await fetch(works_url)
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        console.log("data recovery error");
-      }
-    })
+// Première exposition des travaux
+genererWorks(works);
 
-    .then((project) => {
-      removeElement(gallery);
-      removeElement(modalGallery);
-      project.forEach((project) => {
-        
-        if (categoryId == project.category.id || categoryId == null) {
-          createProject(project);
-          createModalProject(project);
-        }
-      });
-    })
+// Obtenir des catégories
+async function getCategories() {
+  try {
+    const response = await fetch(`${apiUrl}categories`);
+    return await response.json();
+  } catch {
+    console.error("Erreur lors de la récupération des catégories :", error);
+    return [];
+  }
+}
+const categories = await getCategories();
 
-    .catch((error) => {
-      console.log(error);
-    });
-};
-
-const getCategories = async (category) => {
-  await fetch(categories_url)
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        console.log("category data recovery error");
-      }
-    })
-
-    .then((category) => {
-      category.forEach((category) => {
-        createButton(category);
-        createOption(category);
-      });
-    })
-
-    .then((Filter) => {
-      const buttons = document.querySelectorAll(".filters-nav button");
-      buttons.forEach((button) => {
-        button.addEventListener("click", function () {
-          let categoriesId = button.getAttribute("data-id");
-          console.log(categoriesId);
-
-          buttons.forEach((button) => button.classList.remove("is-active"));
-
-          this.classList.add("is-active");
-
-          getWorks(categoriesId);
-        });
-      });
-    })
-
-    .catch((error) => {
-      console.log(error);
-    });
-};
-
-const main = async () => {
-  await getWorks();
-  await getCategories();
-};
-
-main();
-
-/********* --------- ADMIN MODE ---------- ********/
-
-const body = document.querySelector("body");
-const galleryTitle = document.querySelector("#portfolio h2");
-const token = window.sessionStorage.getItem("token");
-
-const logOut = () => {
-  sessionStorage.removeItem("token");
-  window.location.href = "./index.html";
-};
-
-const adminPage = () => {
-  // Adding the admin "editor" bar
-  body.insertAdjacentHTML(
-    "afterbegin",
-    `<div class="edit-bar">
-          <span class="edit"><i class="fa-solid fa-pen-to-square"></i>Mode édition</span>
-      </div>`
-  );
-
-  // Adding the "open modal" button
-  galleryTitle.insertAdjacentHTML(
-    "afterend",
-    `<a id="open-modal" href="#modal" class="edit-link">
-          <i class="fa-solid fa-pen-to-square"></i>modifier
-      </a>`
-  );
-  // Removing filters like the figma design
-  document.querySelector(".filters-nav").style.display = "none";
-
-  /* --- LOGIN / LOGOUT --- */
-
-  const logButton = document.querySelector("#logButton");
-  console.log("#logButton");
-
-  C
-  logButton.addEventListener("click", logOut);
-
-  /* --- OPPENING MODAL --- */
-  const modalLink = document.querySelector("#open-modal");
-  modalLink.addEventListener("click", openModal);
-};
-
-const deleteWork = async (delete_url) => {
-  await fetch(works_url + delete_url, {
-    method: "DELETE",
-    headers: {
-      "content-type": "application/json",
-      Authorization: "bearer " + token,
-    },
-  }).catch((error) => {
-    console.log(error);
+// Créer les boutons de filtre V2
+function createFilterButtons(categories) {
+  const filterBar = document.getElementById("filter-bar");
+  // Créer un bouton pour tous les travaux
+  const allFilterButton = document.createElement("button");
+  allFilterButton.className = "filter-button";
+  allFilterButton.id = "all-filter-btn";
+  allFilterButton.innerText = "Tous";
+  allFilterButton.addEventListener("click", () => {
+    // Effacer tous les travaux précédemment filtrés
+    document.querySelector(".gallery").innerHTML = "";
+    genererWorks(works);
   });
+  filterBar.appendChild(allFilterButton);
 
-  getWorks();
-};
+  // Créer un bouton pour chaque catégorie
+  categories.forEach((category) => {
+    const filterButton = document.createElement("button");
+    filterButton.className = "filter-button";
+    filterButton.id = `filter-btn-${category.id}`;
+    filterButton.innerText = category.name;
+    filterButton.addEventListener("click", () => {
+      const filteredWorks = works.filter(
+        (work) => work.category.id === category.id
+      );
+      genererWorks(filteredWorks);
+    });
+    // Ajouter chaque bouton à la barre de filtre
+    filterBar.appendChild(filterButton);
+  });
+}
+createFilterButtons(categories);
 
-//function to create project in the modal
-const createModalProject = (project) => {
-  const figureModalProject = document.createElement("figure");
-  figureModalProject.setAttribute("data-tag", project.id);
+// Créer les options de sélection
+function createSelectOptions(categories) {
+  const selectMenu = document.getElementById("category");
+  // Créer une option pour chaque catégorie
+  categories.forEach((category) => {
+    const option = document.createElement("option");
+    option.value = category.id;
+    option.innerText = category.name;
+    selectMenu.appendChild(option);
+  });
+}
+createSelectOptions(categories);
 
-  //create and display image
-  const imageModalProject = document.createElement("img");
-  imageModalProject.src = project.imageUrl;
-  imageModalProject.alt = project.title;
-  imageModalProject.classList.add("modal-project-img");
+// Récupérer le token
+const token = localStorage.getItem("token");
+// Modifier l'affichage de index.html si connecté
+if (token) {
+  // Changer login en logout
+  const logLink = document.getElementById("log-link");
+  logLink.innerText = "logout";
+  // Afficher la barre "Mode édition"
+  const modeEdition = document.getElementById("creation-mode");
+  modeEdition.classList.remove("hidden");
+  // Afficher le lien "modifier"
+  const modifProjects = document.getElementById("modif-projects");
+  modifProjects.classList.remove("hidden");
+  // Masquer les filtres
+  const filterBar = document.getElementById("filter-bar");
+  filterBar.classList.add("hidden");
 
-  const trashIcon = document.createElement("i");
-  trashIcon.classList.add("trash-icon", "fas", "fa-trash-alt");
-  trashIcon.setAttribute("data-id", project.id);
-  let trashIconID = trashIcon.getAttribute("data-id");
-  const moveIcon = document.createElement("div");
-  moveIcon.classList.add("move-icon");
-  trashIcon.addEventListener("click", function (event) {
-    event.preventDefault();
-    if (confirm("Êtes-vous sûr de vouloir supprimer ce projet ?") == true) {
-      deleteWork(trashIconID);
+  // Déconnexion si le lien est cliqué
+  logLink.addEventListener("click", (event) => {
+    event.preventDefault(); // Empêcher la redirection vers login.html
+    localStorage.removeItem("token"); // Supprimer le token
+    location.reload(); // Recharger la page
+  });
+}
+
+// Variables pour les Modals et les écouteurs
+const modal = document.querySelectorAll(".modal");
+const openModalBtn = document.querySelectorAll(".btn-open");
+openModalBtn[0].addEventListener("click", openModal1);
+const openModal2Btn = document.querySelector("#open-modal-2");
+openModal2Btn.addEventListener("click", openModal2);
+const closeModalBtn = document.querySelectorAll(".btn-close");
+closeModalBtn[0].addEventListener("click", closeModal);
+closeModalBtn[1].addEventListener("click", closeModal);
+const overlay = document.querySelector(".overlay");
+overlay.addEventListener("click", closeModal);
+const backModal1 = document.querySelector("#back");
+backModal1.addEventListener("click", openModal1);
+
+// Ouvrir Modal 1
+async function openModal1() {
+  modal[0].classList.remove("hidden");
+  modal[1].classList.add("hidden");
+  overlay.classList.remove("hidden");
+  resetModal2();
+  works = await getWorks();
+  // Afficher tous les travaux
+  genererThumbnails(works);
+}
+
+// Ouvrir modal 2
+function openModal2() {
+  modal[1].classList.remove("hidden");
+  modal[0].classList.add("hidden");
+}
+
+// Fermer Modal 1 & 2
+function closeModal() {
+  modal[0].classList.add("hidden");
+  modal[1].classList.add("hidden");
+  overlay.classList.add("hidden");
+}
+
+// Créer tous les travaux pour le modal
+function genererThumbnails(works) {
+  divGalleryModal.innerHTML = "";
+  // Boucle pour afficher tous les travaux
+  for (let i = 0; i < works.length; i++) {
+    const work = works[i]; // Un travail
+    // Créer l'image
+    const imageElement = document.createElement("img");
+    imageElement.src = work.imageUrl;
+    imageElement.alt = work.title;
+    // Créer une poubelle
+    const divTrash = document.createElement("div");
+    divTrash.className = "trash";
+    const imgTrash = document.createElement("img");
+    imgTrash.src = "assets/icons/trashbin.png";
+    divTrash.appendChild(imgTrash);
+    // Créer une figure pour joindre l'image et la poubelle
+    const figureElement = document.createElement("figure");
+    figureElement.id = `${work.id}-thumb`;
+    figureElement.appendChild(imageElement);
+    figureElement.appendChild(divTrash);
+    // Attacher la figure au DOM
+    const divGalleryModal = document.querySelector(".gallery-modal");
+    divGalleryModal.appendChild(figureElement);
+
+    // Ajouter un écouteur d'événement pour le clic sur la poubelle
+    divTrash.addEventListener("click", function (event) {
+      // Empêcher la propagation de l'événement
+      event.stopPropagation();
+      // Appeler la fonction de suppression
+      deleteWork(work.id);
+    });
+  }
+}
+
+// Supprimer un travail
+// Fonction pour supprimer un travail avec son ID
+async function deleteWork(workId) {
+  const deleteMsg = document.getElementById("delete-msg");
+  try {
+    const response = await fetch(`${apiUrl}works/${workId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      let message = "Projet supprimé avec succès.";
+      displayMessage(deleteMsg, message, "success-message");
+      // Supprimer le travail du modal
+      const deletedWorkModal = document.getElementById(`${workId}-thumb`);
+      deletedWorkModal.remove();
+      // Supprimer le travail de la galerie
+      const deletedWorkGall = document.getElementById(`${workId}-gall`);
+      deletedWorkGall.remove();
     }
-  });
-
-  figureModalProject.appendChild(imageModalProject);
-  figureModalProject.appendChild(trashIcon);
-  trashIcon.appendChild(moveIcon);
-  modalGallery.appendChild(figureModalProject);
-};
-
-/******** ------- ADD PROJECT ------ **********/
-
-const addWork = document.querySelector("#add-box");
-const inputElement = document.querySelector("#title");
-const selectElement = document.querySelector("#category");
-const fileInputElement = document.querySelector("#image");
-const submitButton = document.querySelector("#validate-button");
-const inputFile = document.querySelector("#image");
-
-//function to display the preview of the new work/image
-const showfile = (e) => {
-  e.preventDefault();
-
-  const reader = new FileReader();
-  reader.readAsDataURL(inputFile.files[0]);
-  reader.addEventListener("load", function () {
-    previewImage.src = reader.result;
-  });
-
-  const previewBox = document.querySelector(".upload-picture-box");
-  const previewImage = document.createElement("img");
-  previewImage.setAttribute("id", "preview-image");
-
-  if (!document.querySelector(".preview-image")) {
-    previewImage.style.position = "absolute";
-    previewImage.style.objectFit = "contain";
-    previewImage.style.width = "100%";
-    previewImage.style.height = "100%";
+  } catch (error) {
+    let message = `Impossible de supprimer le projet : ${error.message}`;
+    displayMessage(deleteMsg, message, "error-message");
   }
+}
 
-  const uploadbutton = document.querySelector(".upload-button");
-  uploadbutton.style.display = "none";
-  const pictureIcon = document.querySelector(".picture-icon");
-  pictureIcon.style.display = "none";
-  const typeFiles = document.querySelector(".type-files");
-  typeFiles.style.display = "none";
-
-  previewBox.appendChild(previewImage);
-};
-
-const checkForm = () => {
-  if (
-    inputElement.value !== "" &&
-    selectElement.value !== "" &&
-    fileInputElement.value !== ""
-  ) {
-    submitButton.style.backgroundColor = "#1D6154";
-    submitButton.style.color = "#ffffff";
-  } else {
-    return console.log("Formulaire incomplet");
+// Vérifier le champ du formulaire
+function checkFormField(field) {
+  if (field.value === "") {
+    throw new Error(`Le champ ${field.name} est vide. Veuillez le renseigner.`);
   }
-};
+}
 
-inputFile.addEventListener("change", showfile);
-inputElement.addEventListener("input", checkForm);
-selectElement.addEventListener("input", checkForm);
-fileInputElement.addEventListener("change", checkForm);
+// Sélectionner le champ du formulaire et vérifier s'il est rempli pour changer le style du bouton de validation
+const title = document.getElementById("title");
+title.addEventListener("input", updateValidationBtnStyle);
+const category = document.getElementById("category");
+category.addEventListener("input", updateValidationBtnStyle);
+const filediv = document.getElementById("file-input");
+filediv.addEventListener("input", updateValidationBtnStyle);
+const validationBtn = document.getElementById("validation-btn");
 
-const addWorks = async () => {
-  let getpic = document.getElementById("image").files[0];
-  let gettitle = document.getElementById("title").value;
-  let getCategory = document.getElementById("category").value;
+// Vérifier le formulaire et changer le style du bouton de validation
+function updateValidationBtnStyle() {
+  // Vérifiez que tous les champs sont remplis
+  if (title.value !== "" && category.value !== "" && filediv.value !== "") {
+    // Changer le style du bouton de validation
+    validationBtn.style.backgroundColor = "#1D6154";
+  }
+}
 
-  let formData = new FormData();
-  formData.append("image", getpic);
-  formData.append("title", gettitle);
-  formData.append("category", getCategory);
-
-  await fetch(works_url, {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer " + token,
-      Accept: "application/json",
-    },
-    body: formData,
-  })
-    .then((response) => {
-      if (response.ok) {
-        getWorks();
-        closeModal();
-        console.log("Le projet a été ajouté !");
-        return response.json();
-      } else {
-        console.log("Api data recovery error");
-      }
-    })
-
-    .catch((error) => {
-      console.log(error);
+// Créer un travail
+// Fonction pour ajouter un travail
+const projectForm = document.getElementById("project-form");
+projectForm.addEventListener("submit", async function (event) {
+  // Empêcher le rechargement de la page après la soumission du formulaire
+  event.preventDefault();
+  const statutMsg = document.getElementById("statut-msg");
+  // Vérifier le formulaire
+  try {
+    checkFormField(title);
+    checkFormField(category);
+    checkFormField(filediv);
+  } catch (error) {
+    let message = `${error.message}`;
+    displayMessage(statutMsg, message, "error-message");
+  }
+  // Envoyer les données du formulaire
+  try {
+    const formData = new FormData(this);
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${apiUrl}works`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
     });
-};
-
-const validateForm = (e) => {
-  e.preventDefault();
-
-  let imgIssue = document.querySelector("#error-img");
-  let titleIssue = document.querySelector("#error-title");
-  let categoryIssue = document.querySelector("#error-category");
-
-  imgIssue.innerHTML = "";
-  titleIssue.innerHTML = "";
-  categoryIssue.innerHTML = "";
-
-  if (inputElement.value === "") {
-    titleIssue.innerHTML = "Titre obligatoire";
-  }
-  if (selectElement.value === "") {
-    categoryIssue.innerHTML = "Catégorie obligatoire";
-  }
-  if (fileInputElement.files.length === 0) {
-    imgIssue.innerHTML = "Image obligatoire";
-  }
-
-  if (
-    inputElement.value !== "" &&
-    selectElement.value !== "" &&
-    fileInputElement.files.length > 0
-  ) {
-    addWorks();
-  }
-};
-
-/* --- ADMIN PAGE ELEMENTS --- */
-
-const openModal = () => {
-  asideModal.classList.remove("unactive-modal");
-  asideModal.setAttribute("aria-hidden", "false");
-
-  galleryModal.classList.remove("unactive-modal");
-
-  const addPicButton = document.querySelector("#add-photo");
-  addPicButton.addEventListener("click", (event) => {
-    galleryModal.classList.add("unactive-modal");
-    addModal.classList.remove("unactive-modal");
-    const closeIcon2 = document.querySelector(".close-icon-2");
-    closeIcon2.addEventListener("click", closeModal);
-    const backIcon = document.querySelector(".back-icon");
-    backIcon.addEventListener("click", (event) => {
-      galleryModal.classList.remove("unactive-modal");
-      addModal.classList.add("unactive-modal");
-    });
-  });
-
-  addWork.addEventListener("submit", validateForm);
-
-  const closeIcon = document.querySelector(".close-icon");
-  closeIcon.addEventListener("click", closeModal);
-
-  document.getElementById("modal").addEventListener("click", (event) => {
-    if (event.target === document.getElementById("modal")) {
+    if (response.ok) {
+      // Attendre la mise à jour des travaux
+      const updatedWorks = await getWorks();
+      genererWorks(updatedWorks);
+      let message = "Projet ajouté avec succès.";
+      await displayMessage(statutMsg, message, "success-message");
+      // Effacer le formulaire et fermer le modal
+      projectForm.reset();
       closeModal();
     }
-  });
-
-  getWorks();
-};
-
-const closeModal = () => {
-  asideModal.classList.add("unactive-modal");
-  modalGallery.classList.add("unactive-modal");
-  addModal.classList.add("unactive-modal");
-
-  document.querySelector("#add-box").reset();
-
-  const previewBox = document.querySelector(".upload-picture-box");
-  const previewImage = document.querySelector("#preview-image");
-  if (previewImage !== null) {
-    previewBox.removeChild(previewImage);
+  } catch (error) {
+    let message = `Erreur du serveur lors de l'envoi du formulaire : ${error.message}`;
+    displayMessage(statutMsg, message, "error-message");
   }
+});
 
-  const uploadButtonPic = document.querySelector(".upload-button");
-  uploadButtonPic.style.display = "block";
+// Fonction de message
+async function displayMessage(element, message, className) {
+  element.className = className;
+  element.classList.remove("hidden");
+  element.textContent = message;
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  element.classList.add("hidden");
+}
 
-  const pictureIcon = document.querySelector(".picture-icon");
-  pictureIcon.style.display = "";
+// Bouton d'entrée
+function openFileInput() {
+  document.getElementById("file-input").click();
+}
 
-  const typeFiles = document.querySelector(".type-files");
-  typeFiles.style.display = "";
+const addButton = document.getElementById("add-button-filediv");
+addButton.addEventListener("click", openFileInput);
+const fileInput = document.getElementById("file-input");
+fileInput.addEventListener("change", displaySelectedImage);
+const fileDiv = document.getElementById("filediv");
 
-  submitButton.style.backgroundColor = "#a7a7a7";
-};
+// Afficher l'image téléchargée
+function displaySelectedImage() {
+  // Vérifier si un fichier est sélectionné
+  if (fileInput.files) {
+    const selectedImage = fileInput.files[0];
+    // Créer un objet URL pour l'image sélectionnée
+    const imageURL = URL.createObjectURL(selectedImage);
+    // Créer un élément image
+    const imgElement = document.createElement("img");
+    imgElement.src = imageURL;
+    imgElement.id = "image-to-upload";
+    // Ajouter l'image à la div parent
+    fileDiv.appendChild(imgElement);
+    // Changer la hauteur de l'image
+    imgElement.style.height = "100%";
+    // Masquer tous les éléments derrière l'image
+    hideAllElementsBehindImage(fileDiv, imgElement);
+  }
+}
 
-if (token !== null) {
-  adminPage();
+function hideAllElementsBehindImage(parentElement, exceptionElement) {
+  // Récupérer tous les éléments de parentElement
+  const childElements = parentElement.children;
+  // Appliquer la classe hidden à tous les childElements sauf un
+  for (const child of childElements) {
+    if (child !== exceptionElement) {
+      child.classList.add("hidden");
+    }
+  }
+}
+
+// Fonction pour réinitialiser Modal 2
+function resetModal2() {
+  const imgElement = document.getElementById("image-to-upload");
+  // Supprimer l'image si présente
+  if (imgElement) {
+    imgElement.remove();
+  }
+  // Réinitialiser la classe
+  const pictureFileDiv = document.getElementById("picture-filediv");
+  const addButtonFileDiv = document.getElementById("add-button-filediv");
+  const textFileDiv = document.getElementById("text-filediv");
+  pictureFileDiv.classList.remove("hidden");
+  addButtonFileDiv.classList.remove("hidden");
+  textFileDiv.classList.remove("hidden");
+  // Effacer le contenu des champs
+  fileInput.value = "";
+  title.value = "";
+  category.value = "";
+  validationBtn.style.backgroundColor = "";
 }
