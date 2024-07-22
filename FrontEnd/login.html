@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
       href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans:wght@500&display=swap"
       rel="stylesheet"
-    />
+    >
 
-    <link rel="stylesheet" href="./assets/style.css" />
-    <script type="module" src="./assets/login.js" defer></script>
+    <link rel="stylesheet" href="./assets/styles/style.css">
+    <script type="module" src="./assets/scripts/login.js" defer></script>
 
     <title>Sophie Bluel - Architecte d'intérieur</title>
   </head>
@@ -27,7 +27,7 @@
             <li><a href="./index.html#portfolio">projets</a></li>
             <li><a href="./index.html#contact">contact</a></li>
             <li><a href="#login-form">login</a></li>
-            <li><img src="./assets/icons/instagram.png" alt="Instagram" /></li>
+            <li><img src="./assets/icons/instagram.png" alt="Instagram"></li>
           </ul>
         </nav>
       </header>
@@ -37,14 +37,26 @@
           <h2>Log in</h2>
           <form name="login-form" id="login-form">
             <label for="email">E-mail</label>
-            <input type="email" name="email" id="email" required value="sophie.bluel@test.tld"/>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              required
+              value="sophie.bluel@test.tld"
+            >
 
             <label for="password">Mot de passe</label>
-            <input type="password" name="password" id="password" required value="S0phie"/>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              required
+              value="S0phie"
+            >
 
             <div id="error-login-msg" class="error-message hidden"></div>
 
-            <input type="submit" value="Se connecter" />
+            <input type="submit" value="Se connecter" aria-label="Se connecter">
             <p><a href="">Mot de passe oublié</a></p>
           </form>
         </section>
