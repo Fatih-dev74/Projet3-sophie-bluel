@@ -19,7 +19,7 @@ time, mark, audio, video {
   vertical-align: baseline;
 }
 
-/*** HTML5 reset for older browsers */
+/*** HTML5 reset for older browsers ***/
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
   display: block;
@@ -47,7 +47,7 @@ table {
   border-spacing: 0;
 }
 
-/******************** end reset css ********************/
+/************************ end reset css ************************/
 html,
 body {
   height: 100%;
@@ -235,7 +235,7 @@ footer nav ul {
   justify-content: flex-end;
 }
 
-/************************ Login Page ********************/
+/************************ Login Page ************************/
 .login {
   display: flex;
   flex-direction: column;
@@ -255,7 +255,7 @@ footer nav ul {
 }
 .form input {
   margin-bottom: 30px;
-  padding: 10px;
+  width: 379px;
   height: 51px;
   border: 2px solid #fff;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
@@ -288,7 +288,7 @@ footer nav ul {
   margin-top: -20px;
 }
 
-/******************* Edition Mode *******************/
+/************************ Edition Mode ************************/
 .editionMode {
   background-color: black;
   color: white;
@@ -317,7 +317,7 @@ footer nav ul {
   color: black;
 }
 
-/******************* Modal *******************/
+/************************ Modal ************************/
 .modal {
   display: none;
   position: fixed;
@@ -365,7 +365,7 @@ footer nav ul {
   margin-bottom: 46px;
 }
 
-/******************* Modal Gallery *******************/
+/************************ Modal Gallery ************************/
 .gallery-btn {
   font-family: Syne;
   color: white;
@@ -410,7 +410,7 @@ footer nav ul {
   z-index: 2000;
 }
 
-/******************* Modal Add Photo *******************/
+/************************ Modal Add Photo ************************/
 .form-content {
   width: 420px;
   border-bottom: 1px solid lightgrey;
@@ -434,7 +434,7 @@ footer nav ul {
   align-items: center;
 }
 
-/** Submit Button **/
+/*** Submit Button ***/
 #form-button-submit {
   font-family: Syne;
   color: white;
@@ -455,7 +455,7 @@ footer nav ul {
   background-color: #0e2f28;
 }
 
-/** Photo Form **/
+/*** Photo Form ***/
 .form-button-add-photo {
   color: #306685;
   background-color: #cbd6dc;
@@ -487,7 +487,7 @@ footer nav ul {
   font-size: 15px;
 }
 
-/** InuptTitle Form **/
+/*** InuptTitle Form ***/
 .form-title {
   display: flex;
   flex-direction: column;
@@ -511,7 +511,7 @@ footer nav ul {
   outline: none;
 }
 
-/** Category Form **/
+/*** Category Form ***/
 .form-categories {
   position: relative;
   width: 100%;
@@ -549,7 +549,7 @@ footer nav ul {
   outline: none;
 }
 
-/** Error message **/
+/*** Error message ***/
 .error-message {
   color: red;
 }
@@ -569,7 +569,7 @@ footer nav ul {
   margin-bottom: -17px;
 }
 
-/******************* Modal Confirma Delete Project *******************/
+/************************ Modal Confirma Delete Project ************************/
 .small-modal {
   width: 400px;
   height: 300px;
@@ -607,7 +607,7 @@ footer nav ul {
   background: #0e2f28;
 }
 
-/******************* Modal Succes Project *******************/
+/************************ Modal Succes Project ************************/
 .success-modal .modal-content {
   width: 300px;
   height: 150px;
