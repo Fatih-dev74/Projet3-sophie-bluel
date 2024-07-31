@@ -1,10 +1,5 @@
 'use strict';
 
-/**
- * Fetch data from the given URL
- * @param {string} url - The URL to fetch data from
- * @returns {Promise<Object>} - The fetched data
- */
 async function httpGet(url) 
 {
     try {
@@ -18,13 +13,6 @@ async function httpGet(url)
     }
 }
 
-/**
- * Send a POST request with JSON data or FormData
- * @param {string} url - The URL to send the request to
- * @param {Object|FormData} data - The data to send
- * @param {Object} headers - Optional headers
- * @returns {Promise<Object|null>} - The response data
- */
 async function httpPost(url, data, headers = {}) 
 {
     const isFormData = data instanceof FormData;
@@ -49,12 +37,7 @@ async function httpPost(url, data, headers = {})
     }
 }
 
-/**
- * Send a DELETE request
- * @param {string} url - The URL to send the request to
- * @param {Object} headers - Optional headers
- * @returns {Promise<boolean>} - Success status
- */
+
 async function httpDelete(url, headers={})
 {
     headers = Object.assign(headers, { 
@@ -75,11 +58,6 @@ async function httpDelete(url, headers={})
     }
 }
 
-/**
- * Redirect to the specified URL
- * @param {string} url - The URL to redirect to
- * @returns void
- */
 function redirectTo(url) 
 {
     window.location.href = url;

@@ -60,11 +60,7 @@ function modalGallery()
     createAndDisplayWorks(works);
 }
 
-/**
- * Create and add works to the gallery modal
- * @param {Array} works - List of works to display
- * @returns void
- */
+/*** Create and add works to the gallery modal ***/
 function createAndDisplayWorks(works) 
 {
     resetWorksModalGallery();
@@ -84,20 +80,13 @@ function createAndDisplayWorks(works)
     });
 }
 
-/**
- * Fetch works from the API
- * @returns {Promise<Array>} - List of works
- */
+/*** Fetch works from the API ***/
 async function fetchWorks() 
 {
     return await httpGet(works_url);
 }
 
-/**
- * Add trash icon to an article
- * @param {HTMLElement} article - The article element to add the icon to
- * @returns void
- */
+/*** Add trash icon to an article ***/
 function addTrashIcon(article) 
 {
     let trashIcon = document.createElement('i');
@@ -107,12 +96,7 @@ function addTrashIcon(article)
     trashIconClick(trashIcon, article);
 }
 
-/**
- * Add click event to trash icon
- * @param {HTMLElement} trashIcon - The trash icon element
- * @param {HTMLElement} article - The article element representing the work
- * @returns void
- */
+/*** Add click event to trash icon ***/
 function trashIconClick(trashIcon, article) 
 {
     trashIcon.addEventListener('click', () => {
@@ -120,9 +104,7 @@ function trashIconClick(trashIcon, article)
     });
 }
 
-/**
- * Reset the content of the gallery body
- */
+/*** Reset the content of the gallery body ***/
 function resetWorksModalGallery() 
 {
     let galleryBody = document.querySelector('.gallery-body');
@@ -132,11 +114,7 @@ function resetWorksModalGallery()
 
 /***************** MODAL : CONFIRM DELETE ******************/
 
-/**
- * Show confirmation modal for deleting a project
- * @param {HTMLElement} article - The article element representing the project
- * @returns void
- */
+/*** Show confirmation modal for deleting a project ***/
 function showConfirmModal(article) 
 {
     let cancelButton = document.createElement('button');
@@ -160,11 +138,7 @@ function showConfirmModal(article)
     }, 'small-modal', '.confirmation-modal'); 
 }
 
-/**
- * Handle confirm button click for deleting a project
- * @param {HTMLElement} article - The article element representing the project
- * @returns void
- */
+/*** Handle confirm button click for deleting a project ***/
 async function confirmButtonClick(article) 
 {
     closeModal('.confirmation-modal');
@@ -177,9 +151,7 @@ async function confirmButtonClick(article)
 
 /***************** MODAL : ADD PHOTO ******************/
 
-/**
- * Show the modal to add a photo
- */
+/*** Show the modal to add a photo ***/
 function modalAddPhoto() 
 {
     let submitButton = formSubmitButton();
@@ -205,10 +177,7 @@ function modalAddPhoto()
     loadCategories();
 }
 
-/**
- * Create the photo upload section in the form
- * @returns {HTMLElement} - The photo section element
- */
+/*** Create the photo upload section in the form ***/
 function formPhotoComponent() 
 {
     let errorContainer = document.createElement('p');
@@ -258,10 +227,7 @@ function formPhotoComponent()
     return photoDiv;
 }
 
-/**
- * Create the title input section in the form
- * @returns {HTMLElement} - The title section element
- */
+/*** Create the title input section in the form ***/
 
 function formTitleComponent() 
 {
@@ -289,10 +255,7 @@ function formTitleComponent()
     return titleDiv;
 }
 
-/**
- * Create the category selection section in the form
- * @returns {HTMLElement} - The category section element
- */
+/*** Create the category selection section in the form ***/
 function formCategoryComponent() 
 {
     let errorContainer = document.createElement('p');
@@ -319,10 +282,7 @@ function formCategoryComponent()
     return categoryDiv;
 }
 
-/**
- * Create the submit button for the form
- * @returns {HTMLElement} - The submit button element
- */
+/*** Create the submit button for the form ***/
 function formSubmitButton() 
 {
     let submitButton = document.createElement('input');
@@ -336,9 +296,7 @@ function formSubmitButton()
     return submitButton;
 }
 
-/**
- * Create back icon in the add photo modal
- */
+/*** Create back icon in the add photo modal ***/
 function iconBack() 
 {
     let iconBack = document.createElement('i');
@@ -349,9 +307,7 @@ function iconBack()
         modalContent.prepend(iconBack);
 }
 
-/**
- * Load categories into the category select element
- */
+/*** Load categories into the category select element ***/
 async function loadCategories() 
 {
     const categories = await httpGet(categories_url);
@@ -364,16 +320,7 @@ async function loadCategories()
     );
 }
 
-/**
- * Handle file input change and display selected image
- * @param {Event} event - The change event
- * @param {HTMLElement} imgPreview - The image preview element
- * @param {HTMLElement} icon - The icon element
- * @param {HTMLElement} label - The label element
- * @param {HTMLElement} fileInfo - The file info element
- * @param {HTMLElement} fileErrorContainer - The file error container element
- * @returns void
- */
+/*** Handle file input change and display selected image ***/
 function handleFileChange(event, imgPreview, icon, label, fileInfo, fileErrorContainer) 
 {
     const file = event.target.files[0];
@@ -391,12 +338,7 @@ function handleFileChange(event, imgPreview, icon, label, fileInfo, fileErrorCon
     checkFormValidity(!isValidFile);
 }
 
-/**
- * Check the size of the file
- * @param {File} file - The file to check
- * @param {HTMLElement} fileErrorContainer - The container to display error messages
- * @returns {boolean} - True if the file size is within the limit, false otherwise
- */
+/*** Check the size of the file ***/
 function checkFileSize(file, fileErrorContainer) 
 {
     let maxSize = 4 * 1024 * 1024;
@@ -406,16 +348,7 @@ function checkFileSize(file, fileErrorContainer)
     return file.size <= maxSize;
 }
 
-/**
- * Display the image preview
- * @param {Event} event - The load event
- * @param {HTMLElement} imgPreview - The image preview element
- * @param {HTMLElement} icon - The icon element
- * @param {HTMLElement} label - The label element
- * @param {HTMLElement} fileInfo - The file info element
- * @param {HTMLElement} fileErrorContainer - The file error container element
- * @returns void
- */
+/*** Display the image preview ***/
 function displayImagePreview(event, imgPreview, icon, label, fileInfo, fileErrorContainer) 
 {
     imgPreview.src = event.target.result;
@@ -426,15 +359,7 @@ function displayImagePreview(event, imgPreview, icon, label, fileInfo, fileError
     addTrashIconImg(imgPreview, icon, label, fileInfo, fileErrorContainer);
 }
 
-/**
- * Add trash icon next to the image
- * @param {HTMLElement} imgPreview - The image preview element
- * @param {HTMLElement} icon - The icon element
- * @param {HTMLElement} label - The label element
- * @param {HTMLElement} fileInfo - The file info element
- * @param {HTMLElement} fileErrorContainer - The file error container element
- * @returns void
- */
+/*** Add trash icon next to the image ***/
 function addTrashIconImg(imgPreview, icon, label, fileInfo, fileErrorContainer) 
 {
     let trashIcon = document.createElement('i');
@@ -444,16 +369,7 @@ function addTrashIconImg(imgPreview, icon, label, fileInfo, fileErrorContainer)
     imgPreview.parentElement.appendChild(trashIcon);
 }
 
-/**
- * Remove the image preview
- * @param {HTMLElement} imgPreview - The image preview element
- * @param {HTMLElement} icon - The icon element
- * @param {HTMLElement} label - The label element
- * @param {HTMLElement} fileInfo - The file info element
- * @param {HTMLElement} trashIcon - The trash icon element
- * @param {HTMLElement} fileErrorContainer - The file error container element
- * @returns void
- */
+/*** Remove the image preview ***/
 function removeImagePreview(imgPreview, icon, label, fileInfo, trashIcon, fileErrorContainer) 
 {
     imgPreview.style.display = 'none';
@@ -469,9 +385,7 @@ function removeImagePreview(imgPreview, icon, label, fileInfo, trashIcon, fileEr
     checkFormValidity(); 
 }
 
-/**
- * Handle form submission
- */
+/*** Handle form submission ***/
 
 async function handleSubmit() 
 {
@@ -495,9 +409,7 @@ async function handleSubmit()
     } 
 }
 
-/**
- * Reset the form after adding a project
- */
+/*** Reset the form after adding a project ***/
 function resetForm() 
 {
     let formContent = document.querySelector('.form-content');
