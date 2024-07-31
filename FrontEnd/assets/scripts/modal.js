@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
 /***************** MODAL : PHOTO GALLERY ******************/
 
 /**
@@ -128,6 +129,7 @@ function resetWorksModalGallery()
         galleryBody.innerHTML = ''; 
 }
 
+
 /***************** MODAL : CONFIRM DELETE ******************/
 
 /**
@@ -171,6 +173,7 @@ async function confirmButtonClick(article)
     let success = await httpDelete(`${works_url}/${workId}`);
         success && (works = await fetchWorks(), createAndDisplayWorks(works), createWorks(works), showSuccessModal("Projet supprimé avec succès"));
 }
+
 
 /***************** MODAL : ADD PHOTO ******************/
 
@@ -609,6 +612,7 @@ function hideFieldError(field)
     errorContainer.classList.remove('active');
 }
 
+
 /************** GENERAL SUCCES MODAL ****************/
 
 /**
@@ -644,6 +648,7 @@ function closeSuccessModal()
 {
     closeModal('.success-modal');
 }
+
 
 /***************** GENERAL MODAL ******************/
 
