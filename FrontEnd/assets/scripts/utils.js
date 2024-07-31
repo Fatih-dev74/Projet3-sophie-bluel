@@ -37,7 +37,6 @@ async function httpPost(url, data, headers = {})
     }
 }
 
-
 async function httpDelete(url, headers={})
 {
     headers = Object.assign(headers, { 

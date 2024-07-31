@@ -10,29 +10,20 @@ let works = [];
 let categories = [];
 
 
-/**
- * Clears the gallery
- */
+/*** Clears the gallery ***/
 function resetGallery()
 {
     gallery.innerHTML = "";
 }
 
-/**
- * Displays works in the gallery
- * @param {Array} works - List of works to display
- * @returns void
- */
+/*** Displays works in the gallery ***/
 function createWorks(works) 
 {
     resetGallery();
     works.forEach(work => createWork(work));
 }
 
-/**
- * Creates and adds a work element to the gallery
- * @param {Object} work - Work object to create element for
- */
+/*** Creates and adds a work element to the gallery ***/
 function createWork(work)
 {
     let figcaption = document.createElement('figcaption');
@@ -50,23 +41,14 @@ function createWork(work)
     gallery.appendChild(figure);
 }
 
-/**
- * Creates category buttons and adds them to filters
- * @param {Array} categories - List of category objects
- * @returns void
- */
+/*** Creates category buttons and adds them to filters ***/
 function createCategories(categories)
 {
     createCategory({name: "Tous", id: 0}, true);
     categories.forEach(category => createCategory(category));
 }
 
-/**
- * Creates and adds a category button to filters
- * @param {Object} category - Category object to create button for
- * @param {boolean} isDefault - Button selected by default
- * @returns void
- */
+/*** Creates and adds a category button to filters ***/
 function createCategory(category, isDefault = false)
 {
     let button = document.createElement('button');
@@ -81,20 +63,14 @@ function createCategory(category, isDefault = false)
 
     filters.appendChild(button); 
 }
-/**
- * Filters works by category and updates gallery
- * @param {number} categoryId - ID of the category to filter works by
- * @returns void
- */
+/*** Filters works by category and updates gallery ***/
 function filterWorks(categoryId) 
 {
     const filteredWorks = categoryId === 0 ? works : works.filter(work => work.category?.id === categoryId);
     createWorks(filteredWorks);
 }
 
-/**
- * Fetches and displays works and categories when script loads
- */
+/*** Fetches and displays works and categories when script loads ***/
 (async function() {
 
     categories = await httpGet(url_categories);

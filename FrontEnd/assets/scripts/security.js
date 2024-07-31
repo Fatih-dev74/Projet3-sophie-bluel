@@ -6,18 +6,14 @@ const form = document.querySelector('#loginForm');
 const topBar = document.querySelector('.topBar');
 const loginLogoutLink = document.getElementById('loginLink');
 
-/**
- * Add login/logout link to the nav bar and show edit mode if token is present
- */
+/*** Add login/logout link to the nav bar and show edit mode if token is present ***/
 document.addEventListener('DOMContentLoaded', function() {
     addAuthLink();
     displayEditionMode();
     activeLinkLogin(); 
 });
 
-/**
- * Handle form submission for login
- */
+/*** Handle form submission for login ***/
 form?.addEventListener('submit', async (event) => {
     event.preventDefault();
     hideError();
@@ -31,11 +27,6 @@ form?.addEventListener('submit', async (event) => {
         authResponse(response);
 });
 
-/**
- * Process authentication response
- * @param {Object} response - The response from the authentication request
- * @returns void
- */
 function authResponse(response) 
 {
     !response?.userId 
@@ -43,41 +34,21 @@ function authResponse(response)
     ? authSuccess(response.token) : authError("Une erreur est survenue");
 }
 
-/**
- * Handle successful authentication
- * @param {string} token - The authentication token
- * @returns void
- */
 function authSuccess(token) 
 {
     saveToken(token);
     redirectTo('./index.html');
 }
 
-/**
- * Handle authentication error
- * @param {string} message - The error message to display
- * @returns void
- */
 function authError(message) 
 {
     showError(message);
 }
 
-/**
- * Save token to session storage
- * @param {string} token - The authentication token
- * @returns void
- */
 function saveToken(token) {
     store.setItem('token', token);
 }
 
-/**
- * Show error message
- * @param {string} message - The error message to display
- * @returns void
- */
 function showError(message) 
 {
     let errNode = document.createElement('div');
@@ -87,26 +58,18 @@ function showError(message)
     form.prepend(errNode);
 }
 
-/**
- * Hide error message
- */
+/*** Hide error message ***/
 function hideError() 
 {
     document.querySelector('.error-message-login')?.remove();
 }
 
-/**
- * Check if user is authenticated
- * @returns {boolean} - True if the user is authenticated, false otherwise
- */
 function isAuthenticated() 
 {
     return !!store.getItem('token');
 }
 
-/**
- * Add login or logout link to the nav bar
- */
+/*** Add login or logout link to the nav bar ***/
 function addAuthLink() 
 {
     let navList = document.querySelector('nav ul');
@@ -115,10 +78,6 @@ function addAuthLink()
     navList && (insertAuthLink(navList, authLink), isAuthenticated() && setLogoutLink(authLink));
 }
 
-/**
- * Create login link structure
- * @returns {HTMLElement} - The created login link element
- */
 function createAuthLink() 
 {
     let authAnchor = document.createElement('a');
@@ -133,11 +92,6 @@ function createAuthLink()
     return authLink;
 }
 
-/**
- * Replace login link with logout
- * @param {HTMLElement} authLink - The login link element to replace
- * @returns void
- */
 function setLogoutLink(authLink) 
 {
     let authAnchor = authLink.querySelector('a');
@@ -149,46 +103,32 @@ function setLogoutLink(authLink)
         });
 }
 
-/**
- * Insert auth link into the nav bar
- * @param {HTMLElement} navList - The nav list element
- * @param {HTMLElement} authLink - The auth link element
- * @returns void
- */
 function insertAuthLink(navList, authLink) 
 {
     navList.insertBefore(authLink, navList.children[navList.children.length - 1]);
 }
 
-/**
- * Logout user
- */
+/*** Logout user ***/
 function logout() 
 {
     store.removeItem('token');
     redirectTo('./index.html');
 }
 
-/**
- * Update the active link based on the current URL
- */
+/*** Update the active link based on the current URL ****/
 function activeLinkLogin() 
 {
     const loginLink = document.getElementById('loginLink');
     loginLink?.classList.toggle('active', loginLink?.href === window.location.href);
 }
 
-/**
- * Display full edit mode if token is present
- */
+/*** Display full edit mode if token is present ***/
 function displayEditionMode() 
 {
     isAuthenticated() && (styleModif(), deleteFilters(), addModifyLink());
 }
 
-/**
- * Change the page style for edit mode
- */
+/*** Change the page style for edit mode ***/
 function styleModif() 
 {
     let icon = document.createElement('i');
@@ -206,17 +146,13 @@ function styleModif()
     topBar.appendChild(editionMode);
 }
 
-/**
- * Remove filters
- */
+/*** Remove filters ***/
 function deleteFilters() 
 {
     document.querySelector('.filters')?.remove();
 }
 
-/**
- * Create "modify" link with icon
- */
+/*** Create "modify" link with icon ***/
 function addModifyLink() 
 {
     let icon = document.createElement('i');

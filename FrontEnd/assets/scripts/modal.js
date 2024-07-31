@@ -13,9 +13,7 @@ let confirmationModal = document.createElement('div');
     confirmationModal.classList.add('modal', 'confirmation-modal');
     document.body.appendChild(confirmationModal);
 
-/**
- * Add triggers to open modals
- */
+/*** Add triggers to open modals ***/
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-modal]')?.forEach(trigger => {
         trigger.addEventListener('click', event => {
@@ -37,9 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /***************** MODAL : PHOTO GALLERY ******************/
 
-/**
- * Create and display the photo gallery modal
- */
+/*** Create and display the photo gallery modal ***/
 function modalGallery() 
 {
     let btn = document.createElement('button');
@@ -424,18 +420,14 @@ function resetForm()
     loadCategories();
 }
 
-/**
- * Refresh galleries after adding a project
- */
+/*** Refresh galleries after adding a project ***/
 async function refreshGalleries() 
 {
     works = await fetchWorks();
     createWorks(works);
 }
 
-/**
- * Check the validity of the form
- */
+/*** Check the validity of the form ***/
 function checkFormValidity() 
 {
     const photoInput = document.getElementById('input-file');
@@ -453,13 +445,7 @@ function checkFormValidity()
     submitButton.classList.toggle('active', isValid);
 }
 
-/**
- * Validate an input field
- * @param {HTMLElement} field - The input field element
- * @param {function} validationFunction - The validation function for the field
- * @param {string} errorMessage - The error message to display if validation fails
- * @returns {boolean} - True if valid, false otherwise
- */
+/*** Validate an input field ***/
 function validateInput(field, validationFunction, errorMessage) 
 {
     const isValid = validationFunction(field);
@@ -467,42 +453,25 @@ function validateInput(field, validationFunction, errorMessage)
     return isValid;
 }
 
-/**
- * Validate file input
- * @param {HTMLElement} input - The file input element
- * @returns {boolean} - True if valid, false otherwise
- */
+/*** Validate file input ***/
 function validatePhotoInput(input) 
 {
     return input.files.length !== 0;
 }
 
-/**
- * Validate title input
- * @param {HTMLElement} input - The title input element
- * @returns {boolean} - True if valid, false otherwise
- */
+/*** Validate title input ***/
 function validateTitleInput(input) 
 {
     return input.value.trim() !== '';
 }
 
-/**
- * Validate category selection
- * @param {HTMLElement} select - The category select element
- * @returns {boolean} - True if valid, false otherwise
- */
+/*** Validate category selection ***/
 function validateSelectCategories(select) 
 {
     return select.value !== '';
 }
 
-/**
- * Show field error message
- * @param {HTMLElement} field - The field element
- * @param {string} message - The error message
- * @returns void
- */
+/*** Show field error message ***/
 function showFieldError(field, message) 
 {
     let parentDiv = field.closest('.form-add-photo, .form-title, .form-categories');
@@ -511,11 +480,7 @@ function showFieldError(field, message)
     errorContainer.classList.add('active');
 }
 
-/**
- * Hide field error message
- * @param {HTMLElement} field - The field element
- * @returns void
- */
+/*** Hide field error message ***/
 function hideFieldError(field) 
 {
     let parentDiv = field.closest('.form-add-photo, .form-title, .form-categories');
@@ -527,11 +492,7 @@ function hideFieldError(field)
 
 /************** GENERAL SUCCES MODAL ****************/
 
-/**
- * Show success modal with a message
- * @param {string} message - The success message to display
- * @returns void
- */
+/*** Show success modal with a message ***/
 function showSuccessModal(message) 
 {
     let successModal = document.querySelector('.success-modal');
@@ -553,9 +514,7 @@ function showSuccessModal(message)
     openModal(successModal);
 }
 
-/**
- * Close the success modal
- */
+/*** Close the success modal ***/
 function closeSuccessModal() 
 {
     closeModal('.success-modal');
@@ -564,45 +523,27 @@ function closeSuccessModal()
 
 /***************** GENERAL MODAL ******************/
 
-/**
- * Open the modal
- * @param {HTMLElement} modal - The modal element to open
- * @returns void
- */
+/*** Open the modal ***/
 function openModal(modal) 
 {
     modal.style.display = 'flex';
 }
 
-/**
- * Close the modal
- * @param {string} [modalSelector='.modal'] - The selector for the modal to close
- * @returns void
- */
+/*** Close the modal ***/
 function closeModal(modalSelector = '.modal') 
 {
     let modal = document.querySelector(modalSelector);
         modal && (modal.style.display = 'none', modal.innerHTML = '');
 }
 
-/**
- * Close the modal when clicking outside of it
- * @param {string} modalSelector - The selector for the modal
- * @returns void
- */
+/*** Close the modal when clicking outside of it ***/
 function closeClickOutsideModal(modalSelector) 
 {
     let modal = document.querySelector(modalSelector);
         modal && window.addEventListener('click', (event) => event.target === modal && closeModal(modalSelector));
 }
 
-/**
- * Create the modal structure and display it
- * @param {Object} data - The data for the modal content (header, body, footer)
- * @param {string} className - Additional class for modal content
- * @param {string} [modalSelector='.modal'] - The selector for the modal
- * @returns void
- */
+/*** Create the modal structure and display it ***/
 function createModal(data, className, modalSelector = '.modal') 
 {
     let iconClose = document.createElement('i');
